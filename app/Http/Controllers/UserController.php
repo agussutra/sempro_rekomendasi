@@ -52,7 +52,7 @@ class UserController extends Controller
                'energy' => $item['energy'],
            ]);
         }
-        
+
 
         return response()->json(['message' => 'Data validated successfully', 'data' => $validatedData]);
     }

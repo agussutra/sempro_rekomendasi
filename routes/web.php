@@ -30,12 +30,12 @@ Route::post('/users', [UserController::class, 'store'])->name('users.store');
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 
 
-Route::get('/login', function () {
-    return view('users.login');
-});
-Route::get('/daftar', function () {
-    return view('users.daftar');
-});
+// Route::get('/login', function () {
+//     return view('users.login');
+// });
+// Route::get('/daftar', function () {
+//     return view('users.daftar');
+// });
 
 
 
@@ -55,22 +55,22 @@ Route::get('/daftar', function () {
 
 // Route::post('/submit', [SimpanController::class, 'store']);
 
-Route::get('/yoga', function () {
-    return view('latihan.halamanlogin');
-});
+// Route::get('/yoga', function () {
+//     return view('latihan.halamanlogin');
+// });
 
-Route::get('/lay', [LayoutController::class, 'index']);
+// Route::get('/lay', [LayoutController::class, 'index']);
 
-Route::prefix('layout')->group(function () {
-    Route::get('/dashboard', [LayoutController::class, 'dashboard']);
-    Route::get('/index', [LayoutController::class, 'index']);
-    Route::get('/dataproduksi', [LayoutController::class, 'dataproduksi']);
-    Route::get('/monitor', [LayoutController::class, 'monitor']);
-    Route::get('/setup', [LayoutController::class, 'setup']);
-    Route::get('/baru', [LayoutController::class, 'baru']);
-});
+// Route::prefix('layout')->group(function () {
+//     Route::get('/dashboard', [LayoutController::class, 'dashboard']);
+//     Route::get('/index', [LayoutController::class, 'index']);
+//     Route::get('/dataproduksi', [LayoutController::class, 'dataproduksi']);
+//     Route::get('/monitor', [LayoutController::class, 'monitor']);
+//     Route::get('/setup', [LayoutController::class, 'setup']);
+//     Route::get('/baru', [LayoutController::class, 'baru']);
+// });
 
-Route::prefix('data')->group(function () {
-    // Route::get('/daftar', [DataController::class, 'daftar']);
-    Route::get('/login', [DataController::class, 'login']);
-});
+// Route::prefix('data')->group(function () {
+//     // Route::get('/daftar', [DataController::class, 'daftar']);
+//     Route::get('/login', [DataController::class, 'login']);
+// });

@@ -23,8 +23,7 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        {{-- <a class="navbar-brand" href="#">Brand</a> --}}
+    {{-- <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -36,7 +35,7 @@
                 </li>
             </ul>
         </div>
-    </nav>
+    </nav> --}}
 
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -46,7 +45,6 @@
                         <h3 class="mb-0">Pengumpulan Data Latih</h3>
                     </div>
                     <div class="card-body">
-                        {{-- <form action="{{ route('users.store') }}" method="POST"> --}}
                         @csrf
                         <div class="form-group">
                             <label for="age">Umur:</label>
@@ -115,41 +113,37 @@
                             <select class="form-control" name="gender" id="gender" required>
                                 <option value="laki-laki">Laki-laki</option>
                                 <option value="perempuan">Perempuan</option>
-
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label for="search_song">Cari Lagu:</label>
-                            <div class="input-group ">
-                                <input type="text" class="form-control" id="searchInput"
-                                    placeholder="Masukkan judul lagu">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Masukkan judul lagu">
                                 <div class="input-group-append">
-                                    <button type="button" class="btn btn-primary"
-                                        onclick="searchSongs()">Cari</button>
+                                    <button type="button" class="btn btn-primary" onclick="searchSongs()">Cari</button>
                                 </div>
                             </div>
                         </div>
                         <div id="searchResults"></div>
-                        <div class="my-4"><b>List Lagu Yang Disukai</b></div>
+                        <div class="my-4"><b>List 5 Lagu Yang Membuat Anda Fokus Saat Belajar</b></div>
                         <div class="mt-3 table-responsive">
                             <table class="table tableLagu" id="tableLagu">
                                 <thead>
-                                    <th>Artist</th>
-                                    <th>Song</th>
-                                    <th>Valency</th>
-                                    <th>Energy</th>
-                                    <th>Action</th>
+                                    <tr>
+                                        <th>Artist</th>
+                                        <th>Song</th>
+                                        <th>Valency</th>
+                                        <th>Energy</th>
+                                        <th>Action</th>
+                                    </tr>
                                 </thead>
-                                <tbody>
-
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                         <div class="d-flex justify-content-end mt-2">
                             <button type="button" class="btn btn-primary" onclick="saveData()">Simpan</button>
                         </div>
-                        {{-- </form> --}}
                     </div>
                 </div>
             </div>
@@ -169,10 +163,7 @@
                 },
                 body: params.toString(),
             };
-            const response = await fetch(
-                "https://accounts.spotify.com/api/token",
-                parameter
-            );
+            const response = await fetch("https://accounts.spotify.com/api/token", parameter);
             const data = await response.json();
             localStorage.setItem("token", data.access_token);
             localStorage.setItem("expires_in", (3600 * 1000) + Date.now());
@@ -191,8 +182,7 @@
                 await getToken();
             }
             const searchQuery = document.getElementById('searchInput').value;
-            const url =
-                `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery < 3 ? '' : searchQuery)}&type=track`;
+            const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=track`;
 
             const response = await fetch(url, {
                 headers: {
@@ -218,21 +208,22 @@
             </thead>
             <tbody>
                 ${data.tracks.items.map((item) => `
-                                                                         <tr>
-                                                                            <td>${item.artists[0].name}</td>
-                                                                            <td>${item.name}</td>
-                                                                            <td>
-                                                                               <button type="button" class="btn btn-primary btn-sm" data-item='${JSON.stringify(item)}' onclick="return saveTrack(this)">+</button>
-                                                                            </td>
-                                                                        </tr>
-                                                                        `).join('')}
+                    <tr>
+                        <td>${item.artists[0].name}</td>
+                        <td>${item.name}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary btn-sm" data-item='${JSON.stringify(item)}' onclick="return saveTrack(this)">+</button>
+                        </td>
+                    </tr>
+                `).join('')}
             </tbody>
         `;
             searchResults.appendChild(table);
         }
 
+        const addedTracks = new Set();
+
         async function saveTrack(item) {
-            const trackCombination = [];
             const itemData = JSON.parse(item.getAttribute('data-item'));
 
             if (itemData) {
@@ -244,59 +235,55 @@
                         }
                     });
                     const audioFeatures = await response.json();
-                    trackCombination.push({
-                        artisName: itemData.artists[0].name,
-                        songName: itemData.name,
-                        energy: audioFeatures.energy,
-                        valence: audioFeatures.valence
-                    });
+                    if (addedTracks.has(itemData.id)) {
+                        return alert('Lagu sudah ditambahkan.');
+                    }
+                    addedTracks.add(itemData.id);
+
+                    const newRow = document.createElement('tr');
+                    newRow.dataset.trackId = itemData.id;
+
+                    newRow.innerHTML = `
+                        <td>${itemData.artists[0].name}</td>
+                        <td>${itemData.name}</td>
+                        <td>${audioFeatures.valence}</td>
+                        <td>${audioFeatures.energy}</td>
+                        <td><button type="button" class="btn btn-danger btn-sm" onclick="return deleteTrack(this)">-</button></td>
+                    `;
+
+                    document.getElementById('tableLagu').querySelector('tbody').appendChild(newRow);
+                    updateSaveButtonState();
                 } catch (error) {
                     console.error(`Error fetching audio features for ${itemData.name}:`, error);
                 }
             }
-
-            if (trackCombination.length > 0) {
-                const newRow = document.createElement('tr');
-
-                // Baris untuk artis
-                newRow.appendChild(Object.assign(document.createElement('td'), {
-                    textContent: trackCombination[0].artisName
-                }));
-
-                // Baris untuk lagu
-                newRow.appendChild(Object.assign(document.createElement('td'), {
-                    textContent: trackCombination[0].songName
-                }));
-
-                // Baris untuk valence
-                newRow.appendChild(Object.assign(document.createElement('td'), {
-                    textContent: trackCombination[0].valence
-                }));
-
-                // Baris untuk energy
-                newRow.appendChild(Object.assign(document.createElement('td'), {
-                    textContent: trackCombination[0].energy
-                }));
-
-                // baris button delete
-                newRow.appendChild(Object.assign(document.createElement('td'), {
-                    innerHTML: `<button type="button" class="btn btn-danger btn-sm" onclick="return deleteTrack(this)">-</button>`,
-                }))
-
-                document.getElementById('tableLagu').querySelector('tbody').appendChild(newRow);
-            }
             return false;
         }
 
-
         function deleteTrack(item) {
+            const trackId = item.parentElement.parentElement.dataset.trackId;
+            addedTracks.delete(trackId);
             item.parentElement.parentElement.remove();
+            updateSaveButtonState();
             return false;
+        }
+
+        function updateSaveButtonState() {
+            const rows = document.getElementById('tableLagu').querySelectorAll('tbody tr');
+            const saveButton = document.querySelector('button[onclick="saveData()"]');
+            if (rows.length === 5) {
+                saveButton.disabled = false;
+            } else {
+                saveButton.disabled = true;
+            }
         }
 
         function resetSearch() {
             document.getElementById('searchInput').value = '';
             document.getElementById('searchResults').innerHTML = '';
+            addedTracks.clear();
+            document.getElementById('tableLagu').querySelector('tbody').innerHTML = '';
+            updateSaveButtonState();
         }
 
         function getUpData() {
@@ -307,11 +294,9 @@
 
             checkboxes.forEach(checkbox => {
                 if (checkbox.checked) {
-                    dataHoby.push({
-                        hobi: checkbox.value
-                    });
+                    dataHoby.push({ hobi: checkbox.value });
                 }
-            })
+            });
 
             return {
                 age: age,
@@ -337,22 +322,25 @@
                     valence,
                     energy
                 });
-            })
+            });
 
-            if (dataSong.length === 0 || dataSong.length > 5) {
-                return alert("Data Lagu Maksimal 5");
+            if (dataSong.length === 0 || dataSong.length !== 5) {
+                return alert("Harap pilih tepat 5 lagu.");
+            }
+
+            const formData = getUpData();
+            if (!formData.age || !formData.gender || formData.hobi.length === 0) {
+                return alert("Harap isi semua data.");
             }
 
             try {
-                // deklarasi variabel
                 const dataTrack = {
-                    umur: getUpData().age,
-                    gender: getUpData().gender,
-                    hobi: getUpData().hobi,
+                    umur: formData.age,
+                    gender: formData.gender,
+                    hobi: formData.hobi,
                     dataSong: dataSong,
                 };
 
-                // kirim data ke controller
                 const response = await fetch('/users', {
                     method: 'POST',
                     headers: {
@@ -362,11 +350,7 @@
                     body: JSON.stringify(dataTrack),
                 });
 
-                // console.log(dataTrack);
-                
-
-                // Pesan sukses dari controller
-                const contentType = response.headers.get('Content-Type')
+                const contentType = response.headers.get('Content-Type');
                 if (contentType && contentType.includes('application/json')) {
                     const result = await response.json();
                     alert(result.message);
@@ -384,4 +368,7 @@
     <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
