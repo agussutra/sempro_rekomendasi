@@ -43,7 +43,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h3 class="mb-0">Pengumpulan Data Latih</h3>
+                        <h3 class="mb-0">Pengumpulan Data Latih test</h3>
                     </div>
                     <div class="card-body">
                         {{-- <form action="{{ route('users.store') }}" method="POST"> --}}
