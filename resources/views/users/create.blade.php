@@ -356,6 +356,10 @@
                 if (contentType && contentType.includes('application/json')) {
                     const result = await response.json();
                     alert(result.message);
+
+                    // Jika penyimpanan berhasil, arahkan ke halaman baru
+            window.location.href = '/terimakasih'; // Ganti dengan URL yang sesuai
+
                 } else {
                     const text = await response.text();
                     alert('Unexpected response from server.');

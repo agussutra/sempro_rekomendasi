@@ -29,6 +29,10 @@ Route::post('/users', [UserController::class, 'store'])->name('users.store');
 // Route untuk menampilkan data pengguna
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 
+Route::get('/terimakasih', function () {
+    return view('terimakasih');
+});
+
 
 // Route::get('/login', function () {
 //     return view('users.login');
